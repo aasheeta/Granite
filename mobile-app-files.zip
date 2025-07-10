@@ -1,0 +1,53 @@
+# Mobile App Files to Copy
+
+Copy these files from the workspace to your new mobile repository:
+
+## 📂 Directory Structure to Create
+
+```
+slab-inventory-mobile/
+├── src/
+│   ├── components/
+│   │   ├── Button.js
+│   │   └── Card.js
+│   ├── screens/
+│   │   ├── LoginScreen.js
+│   │   ├── DashboardScreen.js
+│   │   └── BundleListScreen.js
+│   ├── navigation/
+│   │   └── AppNavigator.js
+│   ├── contexts/
+│   │   └── AuthContext.js
+│   ├── services/
+│   │   └── api.js
+│   └── styles/
+│       └── theme.js
+├── package.json          # Use the clean version created
+├── App.tsx               # Updated version
+├── README.md             # Mobile-specific README
+└── .gitignore            # React Native gitignore
+```
+
+## 🔧 Files to Copy
+
+### 1. Core Files
+- Copy all files from `workspace/SlabInventoryMobile/src/` to `slab-inventory-mobile/src/`
+- Replace `package.json` with the clean version I created
+- Copy the updated `App.tsx`
+
+### 2. Documentation
+- Copy `README_MOBILE.md` as `README.md`
+- Copy setup instructions
+
+### 3. Configuration
+- Update `.gitignore` for React Native
+- Configure `metro.config.js`
+- Set up environment files
+```
+
+This ensures:
+✅ **Complete separation** from your web app
+✅ **Independent repository** with its own history
+✅ **No interference** with existing code
+✅ **Clean project structure**
+✅ **Separate dependencies** and configuration
