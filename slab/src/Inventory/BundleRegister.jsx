@@ -396,7 +396,7 @@ const BundleRegister = () => {
                             <p className="no-photos">No Photos Attached</p>
                         </div>
                     </div>
-
+{/* 
                     <div className="statistic-section">
                         <h2>Statistic</h2>
                         <div className="stats-container">
@@ -452,7 +452,7 @@ const BundleRegister = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
   
