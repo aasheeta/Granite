@@ -10,9 +10,9 @@ async function seed() {
 
   // List the users you want to create (with plaintext passwords)
   const users = [
-    { username: 'admin',    password: 'Admin@123' },
-    { username: 'warehouse',password: 'Store123!' },
-    { username: 'manager',  password: 'Mg!pass456' },
+    { username: 'admin',    password: 'admin' },
+    { username: 'store',password: 'store' },
+    { username: 'manager',  password: 'manager' },
   ];
 
   for (let u of users) {

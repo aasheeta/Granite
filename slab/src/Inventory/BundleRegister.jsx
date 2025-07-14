@@ -4,9 +4,11 @@ import Select from 'react-select';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import API from "../api"
+import Loader from '../components/Loader';
 
 const BundleRegister = () => {
      const { token } = useAuth();
+     const [loading, setLoading] = useState(false);
      const navigate = useNavigate();
     const [quality, setQuality] = useState(null);
     const [thickness, setThickness] = useState(null);
@@ -16,8 +18,7 @@ const BundleRegister = () => {
     const [isSelf, setIsSelf] = useState(false);
     const [priceSqMt, setPriceSqMt] = useState('');
     const [priceSqFt, setPriceSqFt] = useState('');
-    const [oldPriceSqMt, setOldPriceSqMt] = useState('');
-    const [oldPriceSqFt, setOldPriceSqFt] = useState('');
+    const [selectedPhotos, setSelectedPhotos] = useState([]);
     const [tags, setTags] = useState([]);
     const [availability, setAvailability] = useState('available');
 
@@ -27,6 +28,7 @@ const BundleRegister = () => {
     const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
    const [newMaterialName, setNewMaterialName] = useState('');
     const [newSupplierName, setNewSupplierName] = useState('');
+    const SQM_TO_SQFT = 10.7639;
   const [bundleData, setBundleData] = useState({
     material: materials,
     supplier: suppliers,
@@ -39,6 +41,33 @@ const BundleRegister = () => {
       .then(res => setMaterials(res.data))
       .catch(err => console.error("Failed to load materials", err));
   }, []);
+
+  const handlePriceSqMtChange = (e) => {
+  const value = e.target.value;
+  setPriceSqMt(value);
+
+  const num = parseFloat(value);
+  if (!isNaN(num)) {
+    const converted = (num / SQM_TO_SQFT).toFixed(2);
+    setPriceSqFt(converted);
+  } else {
+    setPriceSqFt('');
+  }
+};
+
+const handlePriceSqFtChange = (e) => {
+  const value = e.target.value;
+  setPriceSqFt(value);
+
+  const num = parseFloat(value);
+  if (!isNaN(num)) {
+    const converted = (num * SQM_TO_SQFT).toFixed(2);
+    setPriceSqMt(converted);
+  } else {
+    setPriceSqMt('');
+  }
+};
+
 
   useEffect(() => {
     // Fetch materials from backend
@@ -71,7 +100,52 @@ const BundleRegister = () => {
         { value: 'discount', label: 'Discount' },
     ];
 
+    // 🆕 put this inside your BundleRegister component
+//       const handleSave = async () => {
+//   const formData = new FormData();
+
+//   formData.append('supplier', bundleData.supplier || '');
+//   formData.append('material', bundleData.material || '');
+//   formData.append('quality', quality?.value || '');
+//   formData.append('thickness', thickness?.value || '');
+//   formData.append('finish', finish?.value || '');
+//   formData.append('block', block);
+//   formData.append('bundle', bundle);
+//   formData.append('isSelf', isSelf); // boolean, will be sent as "true"/"false"
+//   formData.append('priceSqMt', priceSqMt);
+//   formData.append('priceSqFt', priceSqFt);
+//   formData.append('oldPriceSqMt', oldPriceSqMt);
+//   formData.append('oldPriceSqFt', oldPriceSqFt);
+//   formData.append('availability', availability);
+
+//   // Append tags as JSON string or comma-separated string
+//   formData.append('tags', JSON.stringify(tags.map(t => t.value)));
+
+//   // Append selected photos (if any)
+//   for (let i = 0; i < selectedPhotos.length; i++) {
+//     formData.append('photos', selectedPhotos[i]);
+//   }
+
+//   try {
+//     const res = await API.post('/api/bundles', formData, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         'Content-Type': 'multipart/form-data', // required for FormData
+//       },
+//     });
+
+//     console.log('Success:', res.data);
+//     alert('Bundle registered successfully!');
+//     navigate('/');
+//   } catch (err) {
+//     console.error('Save Error:', err);
+//     alert('Failed to register bundle.');
+//   }
+// };
+
+
     const handleSave = async () => {
+        setLoading(true);
         const bundleData = {
             supplier: suppliers.value,
             material: materials?.value,
@@ -83,8 +157,6 @@ const BundleRegister = () => {
             isSelf,
             priceSqMt,
             priceSqFt,
-            oldPriceSqMt,
-            oldPriceSqFt,
             tags: tags.map(t => t.value),
             availability,
         };
@@ -100,7 +172,7 @@ const BundleRegister = () => {
             });
             console.log(res)
             navigate('/');
-
+                  setLoading(false);
                 alert('Bundle registered successfully!');
         } catch (err) {
             console.error(err);
@@ -138,8 +210,8 @@ const BundleRegister = () => {
     };
 
     return (
-        
         <div className="register-container">
+             {loading && <Loader />}
             <div className="register-header">
                 <h1>Register Bundle</h1>
                 <div className="button-group">
@@ -292,7 +364,7 @@ const BundleRegister = () => {
                                 id="priceSqMt"
                                 className="form-input"
                                 value={priceSqMt}
-                                onChange={(e) => setPriceSqMt(e.target.value)}
+                                onChange={handlePriceSqMtChange}   // ✅ synced
                             />
                         </div>
 
@@ -303,12 +375,12 @@ const BundleRegister = () => {
                                 id="priceSqFt"
                                 className="form-input"
                                 value={priceSqFt}
-                                onChange={(e) => setPriceSqFt(e.target.value)}
+                                onChange={handlePriceSqFtChange}   // ✅ synced
                             />
                         </div>
                     </div>
 
-                    <div className="form-row">
+                    {/* <div className="form-row">
                         <div className="form-group half">
                             <label htmlFor="oldPriceSqMt">Old Price (Sq.Mt.)</label>
                             <input
@@ -330,7 +402,7 @@ const BundleRegister = () => {
                                 onChange={(e) => setOldPriceSqFt(e.target.value)}
                             />
                         </div>
-                    </div>
+                    </div> */}
 
                     <div className="form-group">
                         <label htmlFor="tags">Tags</label>
@@ -383,17 +455,47 @@ const BundleRegister = () => {
                         <div className="section-header">
                             <h2>Bundle Photos</h2>
                             <div className="photo-buttons">
-                                <button className="btn-photo">
+                                <input
+                                    type="file"
+                                    id="photoUpload"
+                                    style={{ display: 'none' }}
+                                    multiple
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const files = Array.from(e.target.files);
+                                        setSelectedPhotos(files);
+                                    }}
+                                />
+
+                                {/* <button className="btn-photo">
                                     <span className="icon">⬇</span> Photo Zip File
-                                </button>
-                                <button className="btn-select-photos">
+                                </button> */}
+                                <button
+                                    className="btn-select-photos"
+                                    onClick={() => document.getElementById('photoUpload').click()}
+                                >
                                     <span className="icon">📷</span> Select Photos
                                 </button>
                             </div>
                         </div>
                         <p className="max-size">Maximum Size: 10 MB</p>
                         <div className="photo-upload-area">
-                            <p className="no-photos">No Photos Attached</p>
+                            <div className="photo-upload-area">
+                                {selectedPhotos.length === 0 ? (
+                                    <p className="no-photos">No Photos Attached</p>
+                                ) : (
+                                    <div className="preview-grid">
+                                        {selectedPhotos.map((file, index) => (
+                                            <img
+                                                key={index}
+                                                src={URL.createObjectURL(file)}
+                                                alt={`preview-${index}`}
+                                                className="preview-image"
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 {/* 

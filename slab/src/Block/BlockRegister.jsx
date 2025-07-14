@@ -128,7 +128,7 @@ const RegisterBlock = () => {
           <h2>Information</h2>
           
           <div className="form-grid">
-            <div className="form-group">
+            {/* <div className="form-group">
               <label htmlFor="registrationDate">Registration Date <span className="required">*</span></label>
               <div className="date-input-wrapper">
                 <input
@@ -143,7 +143,7 @@ const RegisterBlock = () => {
                   <FaCalendarAlt />
                 </button>
               </div>
-            </div>
+            </div> */}
 
             <div className="form-group">
               <label htmlFor="block">Block <span className="required">*</span></label>
@@ -202,7 +202,7 @@ const RegisterBlock = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="supplier">Supplier <span className="required">*</span></label>
+              <label htmlFor="supplier">Supplier </label>
               <select
                 id="supplier"
                 name="supplier"

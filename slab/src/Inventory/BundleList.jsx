@@ -4,6 +4,7 @@ import './BundleList.css';
 import { Tag, Monitor, Box, Camera, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api';
+import Loader from '../components/Loader';
 
 const BundleList = () => {
     const { token, logout } = useAuth();
@@ -13,6 +14,7 @@ const BundleList = () => {
   const [bundleValue, setBundleValue] = useState('');
   const [bundles, setBundles] = useState([]); // ← State to store fetched bundles
   const [materials, setMaterials] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [bundleData, setBundleData] = useState({
     material: '',
     // ... other fields
@@ -75,6 +77,7 @@ const BundleList = () => {
   
   return (
     <div className="bundle-list-container">
+   {loading && <Loader />}
       <div className="bundle-list-header">
         <h2>Bundle List</h2>
         <button onClick={handleClickRegister} className="new-button">

@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './BlockList.css';
+import { useNavigate } from 'react-router-dom';
 import API from '../api'; // Ensure this points to your API setup
 
-const BlockList = ({ onNewClick }) => {
+const BlockList = ({  }) => {
+  const navigate = useNavigate();
   const [selectedMaterial, setSelectedMaterial] = useState('');
   const [blocks, setBlocks] = useState([]);
+
+  const handleClickRegister = () => {
+    navigate('/block-register');
+  };
 
   useEffect(() => {
     const fetchBlocks = async () => {
@@ -27,7 +33,7 @@ const BlockList = ({ onNewClick }) => {
     <div className="block-list-page">
       <div className="block-list-header">
         <h1>Block List</h1>
-        <button className="new-button" onClick={onNewClick}>
+        <button className="new-button" onClick={handleClickRegister}>
           <span>+</span> New
         </button>
       </div>
@@ -95,7 +101,7 @@ const BlockList = ({ onNewClick }) => {
                   <th>Weight</th>
                   <th>Price</th>
                   <th>Location</th>
-                  <th>Registered</th>
+                  {/* <th>Registered</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -108,7 +114,7 @@ const BlockList = ({ onNewClick }) => {
                     <td>{block.weight}</td>
                     <td>{block.price}</td>
                     <td>{block.location}</td>
-                    <td>{block.registrationDate}</td>
+                    {/* <td>{block.registrationDate}</td> */}
                   </tr>
                 ))}
               </tbody>
