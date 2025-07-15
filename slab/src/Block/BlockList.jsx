@@ -3,7 +3,7 @@ import './BlockList.css';
 import { useNavigate } from 'react-router-dom';
 import API from '../api'; // Ensure this points to your API setup
 
-const BlockList = ({  }) => {
+const BlockList = () => {
   const navigate = useNavigate();
   const [selectedMaterial, setSelectedMaterial] = useState('');
   const [blocks, setBlocks] = useState([]);

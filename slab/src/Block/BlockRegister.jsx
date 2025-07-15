@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './BlockRegister.css';
-import { FaCalendarAlt, FaCloudUploadAlt, FaTrashAlt } from 'react-icons/fa';
+import {  FaCloudUploadAlt, FaTrashAlt } from 'react-icons/fa';
  import API from '../api'; 
 
 const RegisterBlock = () => {
