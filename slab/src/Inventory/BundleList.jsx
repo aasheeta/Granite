@@ -187,6 +187,7 @@ const BundleList = () => {
               <strong>Material:</strong> {bundle.material}<br />
               <strong>Block:</strong> {bundle.block}<br />
               <strong>Bundle:</strong> {bundle.bundle}<br />
+              <strong>Plates Count:</strong> {bundle.plates.number}<br />
               <strong>Quality:</strong> {bundle.quality}<br />
               <strong>Thickness:</strong> {bundle.thickness}<br />
               <strong>Finish:</strong> {bundle.finish}
@@ -201,6 +202,7 @@ const BundleList = () => {
                 <th>Material</th>
                 <th>Block</th>
                 <th>Bundle</th>
+                <th>Plates Count</th>
                 <th>Quality</th>
                 <th>Thickness</th>
                 <th>Finish</th>
@@ -213,6 +215,8 @@ const BundleList = () => {
                   <td>{bundle.material}</td>
                   <td>{bundle.block}</td>
                   <td>{bundle.bundle}</td>
+                   <td>{bundle.plates.length} </td>
+                   {/* plate(s): {bundle.plates.map(p => p.number).join(', ')} */}
                   <td>{bundle.quality}</td>
                   <td>{bundle.thickness}</td>
                   <td>{bundle.finish}</td>

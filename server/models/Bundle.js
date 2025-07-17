@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+const plateSchema = new mongoose.Schema({
+  number: String,
+  widthFt: String,
+  heightFt: String,
+  totalSqFt: String
+}, { _id: false }); // Set _id: false to avoid MongoDB auto-generating an ID for each plate
+
 const bundleSchema = new mongoose.Schema({
   supplier: String,
   material: String,
@@ -20,6 +27,7 @@ const bundleSchema = new mongoose.Schema({
     enum: ['available', 'on-hold', 'sold'],
     default: 'available'
   },
+  plates: [plateSchema], // ✅ Add this line to include plates
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now }
 });

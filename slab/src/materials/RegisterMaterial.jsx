@@ -68,7 +68,7 @@ const RegisterMaterial = () => {
             </div>
             
             <div className="form-right">
-              <div className="form-row">
+              <div className="form-row-material">
                 <div className="form-group">
                   <label>Name *</label>
                   <input
@@ -95,7 +95,7 @@ const RegisterMaterial = () => {
                 </div>
               </div>
               
-              <div className="form-row">
+              <div className="form-row-material">
                 <div className="form-group">
                   <label>Classification *</label>
                   <select

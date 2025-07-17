@@ -5,9 +5,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import API from "../api"
 import Loader from '../components/Loader';
+import PlateList from '../Plate/PlateList';
 
 const BundleRegister = () => {
      const { token } = useAuth();
+     const [plates, setPlates] = useState([])
      const [loading, setLoading] = useState(false);
      const navigate = useNavigate();
     const [quality, setQuality] = useState(null);
@@ -144,40 +146,6 @@ const handlePriceSqFtChange = (e) => {
 // };
 
 
-    const handleSave = async () => {
-        setLoading(true);
-        const bundleData = {
-            supplier: suppliers.value,
-            material: materials?.value,
-            quality: quality?.value,
-            thickness: thickness?.value,
-            finish: finish?.value,
-            block,
-            bundle,
-            isSelf,
-            priceSqMt,
-            priceSqFt,
-            tags: tags.map(t => t.value),
-            availability,
-        };
-
-        try {
-            // const res = await fetch('http://localhost:5000/api/bundles', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(bundleData)
-            // });
-            const res  = await API.post('/api/bundles', bundleData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            console.log(res)
-            navigate('/');
-                  setLoading(false);
-                alert('Bundle registered successfully!');
-        } catch (err) {
-            console.error(err);
-        }
-    };
 
     const handleAddNewMaterial = async () => {
         if (!newMaterialName.trim()) return;
@@ -209,6 +177,43 @@ const handlePriceSqFtChange = (e) => {
         }
     };
 
+    
+    const handleSave = async () => {
+        setLoading(true);
+        const bundleDataToSend  = {
+            supplier: bundleData.supplier,
+            material: bundleData?.material,
+            quality: quality?.value,
+            thickness: thickness?.value,
+            finish: finish?.value,
+            block,
+            bundle,
+            isSelf,
+            priceSqMt,
+            priceSqFt,
+            tags: tags.map(t => t.value),
+            availability,
+            plates: plates,
+        };
+
+        try {
+            // const res = await fetch('http://localhost:5000/api/bundles', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(bundleData)
+            // });
+            const res  = await API.post('/api/bundles', bundleDataToSend , {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            console.log(res)
+            navigate('/');
+                  setLoading(false);
+                alert('Bundle registered successfully!');
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     return (
         <div className="register-container">
              {loading && <Loader />}
@@ -227,27 +232,28 @@ const handlePriceSqFtChange = (e) => {
                         <button className="btn-advanced">Advanced ▾</button>
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="supplier">
-                            Supplier <span className="required">*</span>
-                        </label>
-                         <select
-                            name="supplier"
-                            value={bundleData.supplier}
-                            onChange={(e) => {
-                                if (e.target.value === 'add_new') {
-                                    setShowAddSupplierModal(true);
-                                } else {
-                                    setBundleData({ ...bundleData, supplier: e.target.value });
-                                }
-                            }}
-                        >
-                            <option value="">(Select Supplier)</option>
-                            {suppliers.map(mat => (
-                                <option key={mat._id} value={mat.enterprise}>{mat.enterprise}</option>
-                            ))}
-                            <option value="add_new">➕ Add New Supplier</option>
-                        </select>
+                                <div className="form-row">
+                        <div className="form-group half">
+                            <label htmlFor="block">Block</label>
+                            <input
+                                type="text"
+                                id="block"
+                                className="form-input"
+                                value={block}
+                                onChange={(e) => setBlock(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="form-group half">
+                            <label htmlFor="bundle">Bundle</label>
+                            <input
+                                type="text"
+                                id="bundle"
+                                className="form-input"
+                                value={bundle}
+                                onChange={(e) => setBundle(e.target.value)}
+                            />
+                        </div>
                     </div>
 
                     <div className="form-group">
@@ -320,31 +326,30 @@ const handlePriceSqFtChange = (e) => {
                             placeholder="Select Finish"
                         />
                     </div>
-
-                    <div className="form-row">
-                        <div className="form-group half">
-                            <label htmlFor="block">Block</label>
-                            <input
-                                type="text"
-                                id="block"
-                                className="form-input"
-                                value={block}
-                                onChange={(e) => setBlock(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="form-group half">
-                            <label htmlFor="bundle">Bundle</label>
-                            <input
-                                type="text"
-                                id="bundle"
-                                className="form-input"
-                                value={bundle}
-                                onChange={(e) => setBundle(e.target.value)}
-                            />
-                        </div>
+                            
+                    <div className="form-group">
+                        <label htmlFor="supplier">
+                            Supplier <span className="required">*</span>
+                        </label>
+                         <select
+                            name="supplier"
+                            value={bundleData.supplier}
+                            onChange={(e) => {
+                                if (e.target.value === 'add_new') {
+                                    setShowAddSupplierModal(true);
+                                } else {
+                                    setBundleData({ ...bundleData, supplier: e.target.value });
+                                }
+                            }}
+                        >
+                            <option value="">(Select Supplier)</option>
+                            {suppliers.map(mat => (
+                                <option key={mat._id} value={mat.enterprise}>{mat.enterprise}</option>
+                            ))}
+                            <option value="add_new">➕ Add New Supplier</option>
+                        </select>
                     </div>
-
+                
                     <div className="form-row">
                         <div className="form-group half">
                             <div className="checkbox-container">
@@ -557,6 +562,9 @@ const handlePriceSqFtChange = (e) => {
                     </div> */}
                 </div>
             </div>
+            <div>
+                  <PlateList plates={plates} setPlates={setPlates} />
+                </div>
   
             {showAddMaterialModal && (
                 <div className="modal-overlay">
