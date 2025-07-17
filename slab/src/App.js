@@ -4,7 +4,7 @@ import Dashboard from './components/Dashboard';
 import BundleList from './Inventory/BundleList';
 import BundleRegister from './Inventory/BundleRegister';
 import BundleSettings from './Inventory/BundleSettings';
-import StockConference from './Inventory/StockConference';
+// import StockConference from './Inventory/StockConference';
 import RegisterBlock from './Block/BlockRegister';
 import BlockSettings from './Block/BlockSetting';
 import BlockList from './Block/BlockList';
@@ -42,7 +42,7 @@ const App = () => {
                   <Route path="/" element={<Dashboard />} />
                   <Route path="bundle-list" element={<BundleList />} />
                   <Route path="bundle-register" element={<BundleRegister />} />
-                  <Route path="stock-conference" element={<StockConference />} />
+                  {/* <Route path="stock-conference" element={<StockConference />} /> */}
                   <Route path="settings" element={<BundleSettings />} />
                   <Route path="block-register" element={<RegisterBlock />} />
                   <Route path="block-settings" element={<BlockSettings />} />

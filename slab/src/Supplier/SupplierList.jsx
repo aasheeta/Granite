@@ -10,126 +10,93 @@ const SupplierList = () => {
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        const res = await API.get('/api/suppliers'); // Adjust endpoint if needed
+        const res = await API.get('/api/suppliers');
         setSuppliers(res.data);
       } catch (error) {
         console.error('Failed to fetch suppliers:', error);
       }
     };
-
     fetchSuppliers();
   }, []);
-  
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    console.log("abc", setSuppliers(""))
-  };
 
-  const handleApplyFilter = () => {
-    console.log('Applying filter for:', searchTerm);
-  };
-
-  const handleClearFilter = () => {
-    setSearchTerm('');
-    console.log('Clearing filters');
-  };
-
-  const handleNewSupplier = () => {
-    console.log('Adding new supplier');
-  };
-
-  const handleEditSupplier = (id) => {
-    console.log('Editing supplier:', id);
-  };
-
-  const handleDeleteSupplier = (id) => {
-    console.log('Deleting supplier:', id);
-  };
-
- const filteredSuppliers = suppliers.filter(supplier =>
-  supplier.enterprise.toLowerCase().includes(searchTerm.toLowerCase())
-);
+  const filteredSuppliers = suppliers.filter((supplier) =>
+    supplier.enterprise.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="supplier-list-container">
-      <div className="header">
-        <div className="header-left">
-          <h1 className="page-title">Supplier List</h1>
-        </div>
-        <div className="header-right">
-          <button className="btn-primary" onClick={handleNewSupplier}>
-            <FiPlus className="btn-icon" />
-            New
-          </button>
+    <div className="bundle-list-container">
+      <div className="bundle-list-header">
+        <h2>Supplier List</h2>
+        <button className="new-button">
+          <FiPlus /> Add Supplier
+        </button>
+      </div>
+
+      <div className="filter-container">
+        <div className="filter-row">
+          <div className="filter-item">
+            <label htmlFor="search">Search by Company</label>
+            <input
+              id="search"
+              type="text"
+              placeholder="Company name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button className="apply-filter-button">Apply</button>
+          <button className="clear-button" onClick={() => setSearchTerm('')}>Clear</button>
         </div>
       </div>
 
-      <div className="content">
-        <div className="filter-section">
-          <div className="search-container">
-            <div className="search-input-wrapper">
-              <FiSearch className="search-icon" />
-              <input
-                type="text"
-                placeholder="Name"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="search-input"
-              />
+      <div className="table-wrapper">
+        <table className="bundle-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>CNPJ</th>
+              <th>Telephone</th>
+              <th>Note</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredSuppliers.map((supplier) => (
+              <tr key={supplier._id}>
+                <td>{supplier.enterprise}</td>
+                <td>{supplier.cnpj}</td>
+                <td>{supplier.telephone}</td>
+                <td>{supplier.note}</td>
+                <td>
+                  <div className="action-buttons">
+                                                         <button className="btn-icon">
+                                                           <FiEdit2 />
+                                                         </button>
+                                                         <button className="btn-icon">
+                                                           <FiTrash2 />
+                                                         </button>
+                                                       </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Responsive Card View */}
+        {/* <div className="bundle-card-grid">
+          {filteredSuppliers.map((supplier) => (
+            <div key={supplier._id} className="bundle-card">
+              <h3>{supplier.enterprise}</h3>
+              <p><strong>CNPJ:</strong> {supplier.cnpj}</p>
+              <p><strong>Phone:</strong> {supplier.telephone}</p>
+              <p><strong>Note:</strong> {supplier.note}</p>
+              <div className="action-buttons">
+                <button className="action-btn edit-btn"><FiEdit2 /></button>
+                <button className="action-btn delete-btn"><FiTrash2 /></button>
+              </div>
             </div>
-            <button className="btn-filter" onClick={handleApplyFilter}>
-              Apply Filter
-            </button>
-            <button className="btn-clear" onClick={handleClearFilter}>
-              To clean
-            </button>
-          </div>
-        </div>
-
-        <div className="table-section">
-          <div className="table-container">
-            <table className="suppliers-table">
-              <thead>
-                <tr>
-                  <th>Company Name</th>
-                  <th>CNPJ</th>
-                  <th>Telephone</th>
-                  <th>Note:</th>
-                  <th>Options</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSuppliers.map((supplier) => (
-                  <tr key={supplier._id}>
-                    <td>{supplier.enterprise}</td>
-                    <td>{supplier.cnpj}</td>
-                    <td>{supplier.telephone}</td>
-                    <td>{supplier.note}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="action-btn edit-btn"
-                          onClick={() => handleEditSupplier(supplier._id)}
-                          title="Edit"
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className="action-btn delete-btn"
-                          onClick={() => handleDeleteSupplier(supplier._id)}
-                          title="Delete"
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-
-            </table>
-          </div>
-        </div>
+          ))}
+        </div> */}
       </div>
     </div>
   );

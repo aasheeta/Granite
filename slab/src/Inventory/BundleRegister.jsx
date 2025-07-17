@@ -233,6 +233,18 @@ const handlePriceSqFtChange = (e) => {
                     </div>
 
                                 <div className="form-row">
+                                     <div className="form-group half">
+                            <label htmlFor="bundle">Bundle
+                                 <span className="required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="bundle"
+                                className="form-input"
+                                value={bundle}
+                                onChange={(e) => setBundle(e.target.value)}
+                            />
+                        </div>
                         <div className="form-group half">
                             <label htmlFor="block">Block</label>
                             <input
@@ -244,16 +256,6 @@ const handlePriceSqFtChange = (e) => {
                             />
                         </div>
 
-                        <div className="form-group half">
-                            <label htmlFor="bundle">Bundle</label>
-                            <input
-                                type="text"
-                                id="bundle"
-                                className="form-input"
-                                value={bundle}
-                                onChange={(e) => setBundle(e.target.value)}
-                            />
-                        </div>
                     </div>
 
                     <div className="form-group">
@@ -329,7 +331,7 @@ const handlePriceSqFtChange = (e) => {
                             
                     <div className="form-group">
                         <label htmlFor="supplier">
-                            Supplier <span className="required">*</span>
+                            Supplier 
                         </label>
                          <select
                             name="supplier"

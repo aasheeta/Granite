@@ -46,10 +46,10 @@ const Sidebar = ({closeSidebar }) => {
   const inventoryItems = [
     { id: 'bundle-list', path: '/bundle-list', label: 'Bundle List', icon: <FaClipboardList size={14} /> },
     { id: 'new', path: '/bundle-register', label: 'New', icon: <FaPlusSquare size={14} /> },
-    { id: 'settings', path: '/settings', label: 'Settings', icon: <FaCogs size={14} /> },
+    // { id: 'settings', path: '/settings', label: 'Settings', icon: <FaCogs size={14} /> },
     { id: 'dashboard', path: '/', label: 'Dashboard', icon: <FaTachometerAlt size={14} /> },
-    { id: 'controls', path: '/controls', label: 'Controls', icon: <FaBoxes size={14} /> },
-    { id: 'stock-conference', path: '/stock-conference', label: 'Stock Conference', icon: <FaLayerGroup size={14} /> },
+    // { id: 'controls', path: '/controls', label: 'Controls', icon: <FaBoxes size={14} /> },
+    // { id: 'stock-conference', path: '/stock-conference', label: 'Stock Conference', icon: <FaLayerGroup size={14} /> },
     { id: 'import-bundles', path: '/import-bundles', label: 'Import Bundles', icon: <FaDownload size={14} /> },
   ];
 
@@ -113,7 +113,7 @@ const Sidebar = ({closeSidebar }) => {
       submenu: [
         { id: 'supplier-list', path: '/supplier-list', label: 'Supplier List', icon: <FaClipboardList size={14} /> },
         { id: 'supplier-register', path: '/supplier-register', label: 'New', icon: <FaPlusSquare size={14} /> },
-        { id: 'settings', path: '/supplier-setting', label: 'Settings', icon: <FaCogs size={14} /> }
+        // { id: 'settings', path: '/supplier-setting', label: 'Settings', icon: <FaCogs size={14} /> }
       ]
     },
     {
@@ -124,7 +124,7 @@ const Sidebar = ({closeSidebar }) => {
        submenu: [
         { id: 'material-list', path: '/material-list', label: 'Material List', icon: <FaClipboardList size={14} /> },
         { id: 'material-register', path: '/material-register', label: 'New', icon: <FaPlusSquare size={14} /> },
-        { id: 'settings', path: '/material-setting', label: 'Settings', icon: <FaCogs size={14} /> }
+        // { id: 'settings', path: '/material-setting', label: 'Settings', icon: <FaCogs size={14} /> }
       ]
     },
     {
@@ -135,7 +135,7 @@ const Sidebar = ({closeSidebar }) => {
       submenu: [
         { id: 'block-list', path: '/block-list', label: 'Block List', icon: <FaClipboardList size={14} /> },
         { id: 'new', path: '/block-register', label: 'New', icon: <FaPlusSquare size={14} /> },
-        { id: 'settings', path: '/block-settings', label: 'Settings', icon: <FaCogs size={14} /> }
+        // { id: 'settings', path: '/block-settings', label: 'Settings', icon: <FaCogs size={14} /> }
       ]
     },
     {

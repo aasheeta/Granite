@@ -79,10 +79,10 @@
 .materials-table th {
   text-align: left;
   padding: 15px;
-  background: #f8f9fa;
+  background: #6c757d;
   border-bottom: 1px solid #ddd;
   font-weight: 500;
-  color: #333;
+  color: white;
   font-size: 14px;
 }
 

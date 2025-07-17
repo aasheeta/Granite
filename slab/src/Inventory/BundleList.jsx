@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import './BundleList.css';
-import { Tag, Monitor, Box, Camera, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {  FiEdit2, FiTrash2 } from 'react-icons/fi';
 import API from '../api';
+import './BundleList.css';
 
 const BundleList = () => {
-    const { token, logout } = useAuth();
+  const { token, logout } = useAuth();
   const navigate = useNavigate();
-  // const [materialValue, setMaterialValue] = useState('');
+
   const [blockValue, setBlockValue] = useState('');
   const [bundleValue, setBundleValue] = useState('');
-  const [bundles, setBundles] = useState([]); // ← State to store fetched bundles
+  const [bundles, setBundles] = useState([]);
   const [materials, setMaterials] = useState([]);
-  const [bundleData, setBundleData] = useState({
-    material: '',
-    // ... other fields
-  });
+  const [filter, setFilter] = useState({ material: '' });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
@@ -25,43 +22,25 @@ const BundleList = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-//   useEffect(() => {
-//     fetchBundles();
-//   }, []);
-
-//   const fetchBundles = async () => {
-//     try {
-//       const res = await axios.get('http://localhost:5000/api/bundles');
-//       setBundles(res.data);
-//     } catch (error) {
-//       console.error('Failed to fetch bundles:', error);
-//     }
-//   };
-
-
   useEffect(() => {
-    // Fetch materials from backend
     API.get('/api/materials')
       .then(res => setMaterials(res.data))
       .catch(err => console.error("Failed to load materials", err));
-  }, []);
 
-  useEffect(() => {
-    API
-      .get('/api/bundles', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+    API.get('/api/bundles', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then(res => setBundles(res.data))
       .catch(() => logout());
-  }, [token,logout]);
+  }, [token, logout]);
 
   const handleApplyFilter = () => {
-    // You can later add filter logic here
-    console.log('Applying filters...');
+    // You can extend this to call an API with filters
+    console.log('Filter applied:', { filter, blockValue, bundleValue });
   };
 
   const handleClear = () => {
-    // setMaterialValue('');
+    setFilter({ material: '' });
     setBlockValue('');
     setBundleValue('');
   };
@@ -70,170 +49,150 @@ const BundleList = () => {
     navigate('/bundle-register');
   };
 
-  
   return (
     <div className="bundle-list-container">
+      {/* Header */}
       <div className="bundle-list-header">
         <h2>Bundle List</h2>
         <button onClick={handleClickRegister} className="new-button">
-          <span>+</span> New
+          <span>+</span> Add Bundle
         </button>
       </div>
-      
+
+      {/* Filters */}
       <div className="filter-container">
         <div className="filter-row">
           <div className="filter-item">
             <label>Material</label>
             <select
-              name="material"
-              value={bundleData.material}
-              onChange={(e) =>
-                setBundleData({ ...bundleData, material: e.target.value })
-              }
+              value={filter.material}
+              onChange={(e) => setFilter({ ...filter, material: e.target.value })}
             >
               <option value="">(Select Material)</option>
               {materials.map((mat) => (
-                <option key={mat._id} value={mat.name}>
-                  {mat.name}
-                </option>
+                <option key={mat._id} value={mat.name}>{mat.name}</option>
               ))}
             </select>
           </div>
-          
+
           <div className="filter-item">
             <label>Block</label>
-            <input 
-              type="text" 
-              placeholder="(Example: 332145564345)" 
-              value={blockValue} 
+            <input
+              type="text"
+              placeholder="(Example: 332145564345)"
+              value={blockValue}
               onChange={(e) => setBlockValue(e.target.value)}
             />
           </div>
-          
+
           <div className="filter-item">
             <label>Bundle</label>
-            <input 
-              type="text" 
-              placeholder="(Example: 332145564345)" 
-              value={bundleValue} 
+            <input
+              type="text"
+              placeholder="(Example: 332145564345)"
+              value={bundleValue}
               onChange={(e) => setBundleValue(e.target.value)}
             />
           </div>
-          
-          <button className="apply-filter-button" onClick={handleApplyFilter}>
-            Apply Filter
-          </button>
-          
-          <button className="clear-button" onClick={handleClear}>
-            To clean
-          </button>
-          
-          <button className="more-filters-button">
-            <span>≡</span> More Filters
-          </button>
+
+          <button className="apply-filter-button" onClick={handleApplyFilter}>Apply Filter</button>
+          <button className="clear-button" onClick={handleClear}>To clean</button>
+          <button className="more-filters-button"><span>≡</span> More Filters</button>
         </div>
       </div>
-      
-      <div className="reports-section">
+
+      {/* Reports and Highlights */}
+      {/* <div className="reports-section">
         <div className="reports-dropdown">
-          <button className="reports-button">
-            Reports <span className="caret">▼</span>
-          </button>
+          <button className="reports-button">Reports <span className="caret">▼</span></button>
         </div>
-        
+
         <div className="highlights">
           <span className="highlight-label">Highlights:</span>
           <div className="highlight-tags">
-            <div className="highlight-tag">
-              <Monitor size={16} /> TV Home
-            </div>
-            <div className="highlight-tag recommended">
-              <span className="star">★</span> Recommended
-            </div>
-            <div className="highlight-tag offer">
-              <Tag size={16} /> Offer
-            </div>
-            <div className="highlight-tag new-arrivals">
-              <Box size={16} /> New Arrivals
-            </div>
-            <div className="highlight-tag photo">
-              <Camera size={16} /> Photo
-            </div>
-            <div className="highlight-tag pre-booking">
-              <Calendar size={16} /> Pre-Booking
-            </div>
+            <div className="highlight-tag"><Monitor size={16} /> TV Home</div>
+            <div className="highlight-tag recommended"><span className="star">★</span> Recommended</div>
+            <div className="highlight-tag offer"><Tag size={16} /> Offer</div>
+            <div className="highlight-tag new-arrivals"><Box size={16} /> New Arrivals</div>
+            <div className="highlight-tag photo"><Camera size={16} /> Photo</div>
+            <div className="highlight-tag pre-booking"><Calendar size={16} /> Pre-Booking</div>
           </div>
         </div>
-        
+
         <div className="total-section">
-          <div className="total-display">
-            Total 0
+          <div className="total-display">Total {bundles.length}</div>
+          <button className="settings-button">⚙</button>
+        </div>
+      </div> */}
+
+      {/* Records Table or Cards */}
+      <div className="records-container">
+        {bundles.length === 0 ? (
+          <div className="no-records-message">
+            <p>No records found</p>
           </div>
-          <button className="settings-button">
-            <span className="gear">⚙</span>
-          </button>
-        </div>
-      </div>
-      
-       <div className="records-container">
-      {bundles.length === 0 ? (
-        <div className="no-records-message">
-          <p>No records found</p>
-        </div>
-      ) : isMobile ? (
-        <div className="bundle-card-grid">
-          {bundles.map((bundle) => (
-            <div className="bundle-card" key={bundle._id}>
-              <strong>Material:</strong> {bundle.material}<br />
-              <strong>Block:</strong> {bundle.block}<br />
-              <strong>Bundle:</strong> {bundle.bundle}<br />
-              <strong>Plates Count:</strong> {bundle.plates.number}<br />
-              <strong>Quality:</strong> {bundle.quality}<br />
-              <strong>Thickness:</strong> {bundle.thickness}<br />
-              <strong>Finish:</strong> {bundle.finish}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="table-responsive">
-          <table className="bundle-table">
-            <thead>
-              <tr>
-                <th>Material</th>
-                <th>Block</th>
-                <th>Bundle</th>
-                <th>Plates Count</th>
-                <th>Quality</th>
-                <th>Thickness</th>
-                <th>Finish</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bundles.map((bundle) => (
-                <tr key={bundle._id}>
-                  <td>{bundle.material}</td>
-                  <td>{bundle.block}</td>
-                  <td>{bundle.bundle}</td>
-                   <td>{bundle.plates.length} </td>
-                   {/* plate(s): {bundle.plates.map(p => p.number).join(', ')} */}
-                  <td>{bundle.quality}</td>
-                  <td>{bundle.thickness}</td>
-                  <td>{bundle.finish}</td>
-                  <td>
-                    <span
-                      className={`status-tag ${bundle.status}`}
-                    >
-                      {bundle.status}
-                    </span>
-                  </td>
+        ) : isMobile ? (
+          <div className="bundle-card-grid">
+            {bundles.map((bundle) => (
+              <div className="bundle-card" key={bundle._id}>
+                <strong>Material:</strong> {bundle.material}<br />
+                <strong>Block:</strong> {bundle.block}<br />
+                <strong>Bundle:</strong> {bundle.bundle}<br />
+                <strong>Plates:</strong> {bundle.plates.length}<br />
+                <strong>Quality:</strong> {bundle.quality}<br />
+                <strong>Thickness:</strong> {bundle.thickness}<br />
+                <strong>Finish:</strong> {bundle.finish}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="table-responsive">
+            <table className="bundle-table">
+              <thead>
+                <tr>
+                  <th>Material</th>
+                  <th>Block</th>
+                  <th>Bundle</th>
+                  <th>Plates</th>
+                  <th>Quality</th>
+                  <th>Thickness</th>
+                  <th>Finish</th>
+                  <th>Status</th>
+                   <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-</div>
+              </thead>
+              <tbody>
+                {bundles.map((bundle) => (
+                  <tr key={bundle._id}>
+                    <td>{bundle.material}</td>
+                    <td>{bundle.block}</td>
+                    <td>{bundle.bundle}</td>
+                    <td>{bundle.plates.length}</td>
+                    <td>{bundle.quality}</td>
+                    <td>{bundle.thickness}</td>
+                    <td>{bundle.finish}</td>
+                    <td>
+                      <span className={`status-tag ${bundle.status}`}>
+                        {bundle.status}
+                      </span>
+                    </td>
+                    <td>
+                                      <div className="action-buttons">
+                                        <button className="btn-icon">
+                                          <FiEdit2 />
+                                        </button>
+                                        <button className="btn-icon">
+                                          <FiTrash2 />
+                                        </button>
+                                      </div>
+                        </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
