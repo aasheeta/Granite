@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import DeleteConfirmModal from '../components/DeleteModal';
 import {  FiEdit2, FiTrash2 } from 'react-icons/fi';
 import API from '../api';
 import './BundleList.css';
+import FeedbackMessage from '../components/FeedbackMessage';    
 
 const BundleList = () => {
   const { token, logout } = useAuth();
   const navigate = useNavigate();
 
   const [blockValue, setBlockValue] = useState('');
+  const [feedback, setFeedback] = useState({ message: '', type: '' });
   const [bundleValue, setBundleValue] = useState('');
   const [bundles, setBundles] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [filter, setFilter] = useState({ material: '' });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [bundleToDelete, setBundleToDelete] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
@@ -21,6 +26,7 @@ const BundleList = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
 
   useEffect(() => {
     API.get('/api/materials')
@@ -51,6 +57,9 @@ const BundleList = () => {
 
   return (
     <div className="bundle-list-container">
+      {feedback.message && (
+  <FeedbackMessage type={feedback.type} message={feedback.message} />
+)}
       {/* Header */}
       <div className="bundle-list-header">
         <h2>Bundle List</h2>
@@ -75,16 +84,20 @@ const BundleList = () => {
             </select>
           </div>
 
-          <div className="filter-item">
+<div className="filter-item">
             <label>Block</label>
-            <input
-              type="text"
-              placeholder="(Example: 332145564345)"
-              value={blockValue}
-              onChange={(e) => setBlockValue(e.target.value)}
-            />
+            <select
+              value={filter.block}
+              onChange={(e) => setFilter({ ...filter, block: e.target.value })}
+            >
+{/* PLease make sure the block lists down in the dropdown thanks */}
+              <option value="">(Select Block)</option>
+              {materials.map((mat) => (
+                <option key={mat._id} value={mat.name}>{mat.name}</option>
+              ))}
+            </select>
           </div>
-
+          
           <div className="filter-item">
             <label>Bundle</label>
             <input
@@ -96,8 +109,8 @@ const BundleList = () => {
           </div>
 
           <button className="apply-filter-button" onClick={handleApplyFilter}>Apply Filter</button>
-          <button className="clear-button" onClick={handleClear}>To clean</button>
-          <button className="more-filters-button"><span>≡</span> More Filters</button>
+          <button className="clear-button" onClick={handleClear}>Clear Filter</button>
+          {/* <button className="more-filters-button"><span>≡</span> More Filters</button> */}
         </div>
       </div>
 
@@ -153,10 +166,11 @@ const BundleList = () => {
                   <th>Material</th>
                   <th>Block</th>
                   <th>Bundle</th>
-                  <th>Plates</th>
+                  <th>Slabs</th>
                   <th>Quality</th>
                   <th>Thickness</th>
                   <th>Finish</th>
+                  <th>Sq. Ft.</th>
                   <th>Status</th>
                    <th>Action</th>
                 </tr>
@@ -171,6 +185,7 @@ const BundleList = () => {
                     <td>{bundle.quality}</td>
                     <td>{bundle.thickness}</td>
                     <td>{bundle.finish}</td>
+                    <td></td>
                     <td>
                       <span className={`status-tag ${bundle.status}`}>
                         {bundle.status}
@@ -178,10 +193,15 @@ const BundleList = () => {
                     </td>
                     <td>
                                       <div className="action-buttons">
-                                        <button className="btn-icon">
-                                          <FiEdit2 />
-                                        </button>
-                                        <button className="btn-icon">
+                        <button className="btn-icon" onClick={() => navigate('/bundle-register', { state: { bundle } })}>
+                          <FiEdit2 />
+                        </button>
+                                        <button className="btn-icon"
+                          onClick={() => {
+                            setBundleToDelete(bundle);
+                            setShowDeleteModal(true);
+                          }}
+                                        >
                                           <FiTrash2 />
                                         </button>
                                       </div>
@@ -192,8 +212,33 @@ const BundleList = () => {
             </table>
           </div>
         )}
+        <DeleteConfirmModal
+          isOpen={showDeleteModal}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setBundleToDelete(null);
+          }}
+          onConfirm={async () => {
+            try {
+              await API.delete(`/api/bundles/${bundleToDelete._id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+              setBundles(prev => prev.filter(b => b._id !== bundleToDelete._id));
+               setFeedback({ message: 'Bundle deleted successfully!', type: 'success' });
+              setShowDeleteModal(false);
+              setBundleToDelete(null);
+              setTimeout(() => setFeedback({ message: '', type: '' }), 3000);
+            } catch (err) {
+              console.error("Delete failed", err);
+              setFeedback({ message: 'Failed to delete bundle.', type: 'error' });
+            }
+          }}
+          bundle={bundleToDelete}
+        />
+
       </div>
     </div>
+    
   );
 };
 

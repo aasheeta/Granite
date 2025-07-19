@@ -6,17 +6,40 @@ import { useNavigate } from 'react-router-dom';
 import API from "../api"
 import Loader from '../components/Loader';
 import PlateList from '../Plate/PlateList';
+import FeedbackMessage from '../components/FeedbackMessage';
+import { useLocation } from 'react-router-dom';
 
 const BundleRegister = () => {
+    const location = useLocation();
+     const existingBundle = location.state?.bundle;
      const { token } = useAuth();
-     const [plates, setPlates] = useState([])
+     const [feedback, setFeedback] = useState({ type: '', message: '' });
+     const [plates, setPlates] = useState([existingBundle?.plates || ''])
      const [loading, setLoading] = useState(false);
      const navigate = useNavigate();
-    const [quality, setQuality] = useState(null);
-    const [thickness, setThickness] = useState(null);
-    const [finish, setFinish] = useState(null);
-    const [block, setBlock] = useState('');
-    const [bundle, setBundle] = useState('');
+     const findOption = (options, value) => options.find(opt => opt.value === value) || null;
+     const qualityOptions = [
+        { value: 'premium', label: 'Premium' },
+        { value: 'standard', label: 'Standard' },
+        { value: 'economy', label: 'Economy' },
+    ];
+
+    const thicknessOptions = [
+        { value: '20mm', label: '20mm' },
+        { value: '30mm', label: '30mm' },
+        { value: '40mm', label: '40mm' },
+    ];
+
+    const finishOptions = [
+        { value: 'polished', label: 'Polished' },
+        { value: 'honed', label: 'Honed' },
+        { value: 'leathered', label: 'Leathered' },
+    ];
+    const [quality, setQuality] = useState(findOption(qualityOptions, existingBundle?.quality));
+    const [thickness, setThickness] = useState(findOption(thicknessOptions, existingBundle?.thickness));
+    const [finish, setFinish] = useState(findOption(finishOptions, existingBundle?.finish));
+    const [block, setBlock] = useState(existingBundle?.block || '');
+    const [bundle, setBundle] = useState(existingBundle?.bundle || '');
     const [isSelf, setIsSelf] = useState(false);
     const [priceSqMt, setPriceSqMt] = useState('');
     const [priceSqFt, setPriceSqFt] = useState('');
@@ -32,8 +55,8 @@ const BundleRegister = () => {
     const [newSupplierName, setNewSupplierName] = useState('');
     const SQM_TO_SQFT = 10.7639;
   const [bundleData, setBundleData] = useState({
-    material: materials,
-    supplier: suppliers,
+    material: existingBundle?.material || '',
+    supplier: existingBundle?.supplier || '',
     // ... other fields
   });
 
@@ -78,23 +101,7 @@ const handlePriceSqFtChange = (e) => {
       .catch(err => console.error("Failed to load materials", err));
   }, []);
 
-    const qualityOptions = [
-        { value: 'premium', label: 'Premium' },
-        { value: 'standard', label: 'Standard' },
-        { value: 'economy', label: 'Economy' },
-    ];
-
-    const thicknessOptions = [
-        { value: '20mm', label: '20mm' },
-        { value: '30mm', label: '30mm' },
-        { value: '40mm', label: '40mm' },
-    ];
-
-    const finishOptions = [
-        { value: 'polished', label: 'Polished' },
-        { value: 'honed', label: 'Honed' },
-        { value: 'leathered', label: 'Leathered' },
-    ];
+    
 
     const tagOptions = [
         { value: 'new', label: 'New' },
@@ -162,13 +169,15 @@ const handlePriceSqFtChange = (e) => {
         }
     };
 
+    console.log("existingBundle:", existingBundle);
+
     const handleAddNewSupplier = async () => {
         if (!newSupplierName.trim()) return;
 
         try {
             const res = await API.post('/api/suppliers', { name: newSupplierName });
             setSuppliers(prev => [...prev, res.data]); // Update dropdown list
-            setBundleData({ ...bundleData, material: res.data.name }); // Set selected
+            setBundleData({ ...bundleData, supplier: res.data.name }); // Set selected
             setNewSupplierName('');
             setShowAddSupplierModal(false);
         } catch (err) {
@@ -177,51 +186,82 @@ const handlePriceSqFtChange = (e) => {
         }
     };
 
-    
     const handleSave = async () => {
-        setLoading(true);
-        const bundleDataToSend  = {
-            supplier: bundleData.supplier,
-            material: bundleData?.material,
-            quality: quality?.value,
-            thickness: thickness?.value,
-            finish: finish?.value,
-            block,
-            bundle,
-            isSelf,
-            priceSqMt,
-            priceSqFt,
-            tags: tags.map(t => t.value),
-            availability,
-            plates: plates,
-        };
+  const errors = [];
 
-        try {
-            // const res = await fetch('http://localhost:5000/api/bundles', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(bundleData)
-            // });
-            const res  = await API.post('/api/bundles', bundleDataToSend , {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            console.log(res)
-            navigate('/');
-                  setLoading(false);
-                alert('Bundle registered successfully!');
-        } catch (err) {
-            console.error(err);
+  if (!bundle.trim() || !bundleData.material || !quality || !thickness) {
+    errors.push("Please fill required details.");
+  }
+
+  if (errors.length > 0) {
+    setFeedback({ type: 'error', message: errors.join(' ') });
+    return;
+  }
+
+  setFeedback({ type: '', message: '' });
+
+  const bundleDataToSend = {
+    supplier: bundleData?.supplier,
+    material: bundleData?.material,
+    quality: quality?.value,
+    thickness: thickness?.value,
+    finish: finish?.value,
+    block,
+    bundle,
+    isSelf,
+    priceSqMt,
+    priceSqFt,
+    tags: tags.map(t => t.value),
+    availability,
+    plates,
+  };
+
+  // If editing an existing bundle, include its ID
+  if (existingBundle?._id) {
+    bundleDataToSend._id = existingBundle._id;
+  }
+
+  try {
+    if (existingBundle?._id) {
+      // PUT for update
+      await API.put('/api/bundles', bundleDataToSend, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setFeedback({ type: 'success', message: 'Bundle updated successfully!' });
+    } else {
+      // POST for new bundle
+      await API.post('/api/bundles', bundleDataToSend, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setFeedback({ type: 'success', message: 'Bundle registered successfully!' });
+    }
+
+    navigate('/');
+  } catch (err) {
+    console.error(err);
+    setFeedback({ type: 'error', message: 'Failed to save bundle.' });
+  }
+};
+
+
+    useEffect(() => {
+        if (feedback.message) {
+            const timer = setTimeout(() => {
+                setFeedback({ type: '', message: '' });
+            }, 3000);
+            return () => clearTimeout(timer);
         }
-    };
+    }, [feedback]);
 
     return (
         <div className="register-container">
              {loading && <Loader />}
+             <FeedbackMessage type={feedback.type} message={feedback.message} />
             <div className="register-header">
                 <h1>Register Bundle</h1>
                 <div className="button-group">
-                    <button className="btn-back">To go back</button>
-                    <button className="btn-save" onClick={handleSave}>Save</button>
+                    {/* <button className="btn-back">To go back</button> */}
+                    <button className="btn-save" onClick={handleSave}>Save Bundle with Slabs</button>
                 </div>
             </div>
 
@@ -411,7 +451,7 @@ const handlePriceSqFtChange = (e) => {
                         </div>
                     </div> */}
 
-                    <div className="form-group">
+                    {/* <div className="form-group">
                         <label htmlFor="tags">Tags</label>
                         <Select
                             id="tags"
@@ -421,7 +461,7 @@ const handlePriceSqFtChange = (e) => {
                             isMulti
                             placeholder="Select Tags"
                         />
-                    </div>
+                    </div> */}
 
                     <div className="form-group">
                         <label>Availability</label>

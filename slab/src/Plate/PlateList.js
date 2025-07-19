@@ -72,7 +72,7 @@ const PlateList = ({plates, setPlates}) => {
     const newPlates = [];
     
     for (let i = 0; i < numberOfPlates; i++) {
-      const plateNumber = `${formData.initialPlate}${i + 1}`;
+      const plateNumber = `${formData.initialPlate}${' - '}${i + 1}`;
       const widthSqMt = parseFloat(formData.widthSqMt) || 0;
       const heightSqMt = parseFloat(formData.heightSqMt) || 0;
       const widthSqFt = parseFloat(formData.widthSqFt) || 0;
@@ -144,8 +144,8 @@ const PlateList = ({plates, setPlates}) => {
             updatedPlate.totalSqMt = (widthM * heightM).toFixed(3);
 
              if (field === 'widthFt' || field === 'heightFt') {
-  const widthFt = parseFloat(field === 'widthFt' ? value : plate.widthFt) || 0;
-  const heightFt = parseFloat(field === 'heightFt' ? value : plate.heightFt) || 0;
+                const widthFt = parseFloat(field === 'widthFt' ? value : plate.widthFt) || 0;
+             const heightFt = parseFloat(field === 'heightFt' ? value : plate.heightFt) || 0;
             
             // Also update feet values
             updatedPlate.widthFt = (widthM * 10.764).toFixed(2);
@@ -165,7 +165,7 @@ const PlateList = ({plates, setPlates}) => {
     <div className="plate-app">
       <div className="main-container">
         <div className="header">
-          <h2>List of Plates</h2>
+          <h2>List of Slabs</h2>
           <div className="header-actions">
             <button className="btn btn-primary" onClick={handleNewClick}>
               + New
@@ -210,19 +210,19 @@ const PlateList = ({plates, setPlates}) => {
                         checked={plates.length > 0 && plates.every(plate => plate.selected)}
                       />
                     </th>
-                    <th>Number</th>
+                    <th>Slab Number</th>
                     <th>Width (Sq.Ft)</th>
                     <th>Height (Sq.Ft))</th>
                     {/* <th>Total Sq.Mt.</th>
                     <th>Width (")</th>
                     <th>Height (")</th> */}
-                    <th>Total Sq.Ft.</th>
+                    <th>Slab Sq.Ft.</th>
                     {/* <th>Weight</th> */}
                     {/* <th>Options</th> */}
                   </tr>
                 </thead>
                 <tbody>
-                  {plates.map((plate) => (
+                  { plates.map((plate) => (
                     <tr key={plate.id}>
                       <td>
                         <input
@@ -306,7 +306,7 @@ const PlateList = ({plates, setPlates}) => {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
-              <h3>Register Plates</h3>
+              <h3>Add Slabs</h3>
               <button className="close-btn" onClick={handleCloseModal}>
                 ×
               </button>
@@ -315,7 +315,7 @@ const PlateList = ({plates, setPlates}) => {
               <div className="form-row-plate">
                 <div className="form-group">
                   <label>
-                    Initial Plate <span className="required">*</span>
+                    Slab Name <span className="required">*</span>
                   </label>
                   <input
                     type="text"
@@ -327,7 +327,7 @@ const PlateList = ({plates, setPlates}) => {
                 </div>
                 <div className="form-group">
                   <label>
-                    Number of Plates <span className="required">*</span>
+                    Number of Slabs <span className="required">*</span>
                   </label>
                   <input
                     type="text"
@@ -342,7 +342,7 @@ const PlateList = ({plates, setPlates}) => {
               <div className="form-row-plate">
                 <div className="form-group">
                      <label>
-                    Height (Sq.Ft.) <span className="required">*</span>
+                    Height (in Sq.Ft.) <span className="required">*</span>
                   </label>
                   <input
                     type="text"
@@ -376,7 +376,7 @@ const PlateList = ({plates, setPlates}) => {
                 </div>
                 <div className="form-group">
                   <label>
-                    Width (Sq.Ft.) <span className="required">*</span>
+                    Width (in Sq.Ft.) <span className="required">*</span>
                   </label>
                   <input
                     type="text"
@@ -406,9 +406,9 @@ const PlateList = ({plates, setPlates}) => {
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-gray" onClick={handleCloseModal}>
+              {/* <button className="btn btn-gray" onClick={handleCloseModal}>
                 To go back
-              </button>
+              </button> */}
               <button className="btn btn-teal" onClick={handleSave}>
                 Save
               </button>

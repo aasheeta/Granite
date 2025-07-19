@@ -32,7 +32,7 @@ const BlockList = () => {
       <div className="block-list-header">
         <h2>Block List</h2>
         <button className="new-button" onClick={() => navigate('/block-register')}>
-          Add Block
+          + Add Block
         </button>
       </div>
 
@@ -78,9 +78,9 @@ const BlockList = () => {
             Clear
           </button>
 
-          <button className="more-filters-button">
+          {/* <button className="more-filters-button">
             More Filters
-          </button>
+          </button> */}
         </div>
       </div>
 

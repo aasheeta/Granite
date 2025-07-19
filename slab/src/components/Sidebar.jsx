@@ -140,7 +140,7 @@ const Sidebar = ({closeSidebar }) => {
     },
     {
       id: 'reports',
-      label: 'Reports',
+      label: 'Reports (Premium)',
       icon: <FaChartBar size={18} />,
       expanded: expandedMenus.reports,
       submenu: []

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './BlockRegister.css';
-import {  FaCloudUploadAlt, FaTrashAlt } from 'react-icons/fa';
- import API from '../api'; 
+import { FaCloudUploadAlt, FaTrashAlt } from 'react-icons/fa';
+import API from '../api'; 
+import FeedbackMessage from '../components/FeedbackMessage';
 
 const RegisterBlock = () => {
   const [blockData, setBlockData] = useState({
@@ -28,6 +29,28 @@ const RegisterBlock = () => {
     secondary: []
   });
 
+  const [feedback, setFeedback] = useState({ type: '', message: '' });
+  const [materials, setMaterials] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [showAddMaterialModal, setShowAddMaterialModal] = useState(false);
+  const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
+  const [newMaterialName, setNewMaterialName] = useState('');
+  const [newSupplierName, setNewSupplierName] = useState('');
+
+  // Fetch materials on component mount
+  useEffect(() => {
+    API.get('/api/materials')
+      .then(res => setMaterials(res.data))
+      .catch(err => console.error("Failed to load materials", err));
+  }, []);
+
+  // Fetch suppliers on component mount
+  useEffect(() => {
+    API.get('/api/suppliers')
+      .then(res => setSuppliers(res.data))
+      .catch(err => console.error("Failed to load suppliers", err));
+  }, []);
+
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,48 +60,142 @@ const RegisterBlock = () => {
     });
   };
 
+  // Handle material dropdown change
+  const handleMaterialChange = (e) => {
+    if (e.target.value === 'add_new') {
+      setShowAddMaterialModal(true);
+    } else {
+      setBlockData({ ...blockData, material: e.target.value });
+    }
+  };
+
+  // Handle supplier dropdown change
+  const handleSupplierChange = (e) => {
+    if (e.target.value === 'add_new') {
+      setShowAddSupplierModal(true);
+    } else {
+      setBlockData({ ...blockData, supplier: e.target.value });
+    }
+  };
+
+  // Add new material
+  const handleAddNewMaterial = async () => {
+    if (!newMaterialName.trim()) return;
+
+    try {
+      const res = await API.post('/api/materials', { name: newMaterialName });
+      setMaterials(prev => [...prev, res.data]);
+      setBlockData({ ...blockData, material: res.data.name });
+      setNewMaterialName('');
+      setShowAddMaterialModal(false);
+      setFeedback({ type: 'success', message: 'Material added successfully!' });
+    } catch (err) {
+      console.error("Failed to add material", err);
+      setFeedback({ type: 'error', message: 'Failed to add material' });
+    }
+  };
+
+  // Add new supplier
+  const handleAddNewSupplier = async () => {
+    if (!newSupplierName.trim()) return;
+
+    try {
+      const res = await API.post('/api/suppliers', { name: newSupplierName });
+      setSuppliers(prev => [...prev, res.data]);
+      setBlockData({ ...blockData, supplier: res.data.enterprise });
+      setNewSupplierName('');
+      setShowAddSupplierModal(false);
+      setFeedback({ type: 'success', message: 'Supplier added successfully!' });
+    } catch (err) {
+      console.error("Failed to add supplier", err);
+      setFeedback({ type: 'error', message: 'Failed to add supplier' });
+    }
+  };
+
   const handleSave = async () => {
-  try {
-    const payload = {
-      ...blockData,
-      // optionally: sanitize numeric fields
-      length: parseFloat(blockData.length) || 0,
-      width: parseFloat(blockData.width) || 0,
-      height: parseFloat(blockData.height) || 0,
-      volume: parseFloat(blockData.volume) || 0,
-      price: parseFloat(blockData.price) || 0,
-      purchaseValue: parseFloat(blockData.purchaseValue) || 0,
-      weight: parseFloat(blockData.weight) || 0,
-    };
+    // Validation - check required fields
+    const errors = [];
+    
+    if (!blockData.block.trim() || !blockData.supplier.trim() || !blockData.material.trim()) errors.push("Please fill required details.");
+    
+    
+    if (errors.length > 0) {
+      setFeedback({ type: 'error', message: errors.join(' ') });
+      return;
+    }
 
-    const res = await API.post('/api/blocks', payload);
-    alert('Block registered successfully!');
-    console.log('Response:', res.data);
-  } catch (error) {
-    console.error('Error saving block:', error);
-    alert('Failed to register block.');
-  }
-};
+    // Clear previous feedback
+    setFeedback({ type: '', message: '' });
 
+    try {
+      const payload = {
+        ...blockData,
+        // optionally: sanitize numeric fields
+        length: parseFloat(blockData.length) || 0,
+        width: parseFloat(blockData.width) || 0,
+        height: parseFloat(blockData.height) || 0,
+        volume: parseFloat(blockData.volume) || 0,
+        price: parseFloat(blockData.price) || 0,
+        purchaseValue: parseFloat(blockData.purchaseValue) || 0,
+        weight: parseFloat(blockData.weight) || 0,
+      };
 
+      const res = await API.post('/api/blocks', payload);
+      setFeedback({ type: 'success', message: 'Block registered successfully!' });
+      console.log('Response:', res.data);
+      
+      // Reset form after successful save
+      setBlockData({
+        registrationDate: '16/05/2025',
+        block: '',
+        length: '',
+        height: '',
+        width: '',
+        volume: '',
+        supplier: '',
+        location: '',
+        price: '',
+        purchaseValue: '',
+        weight: '',
+        material: '',
+        code: '',
+        internship: '',
+        situation: 'Active',
+        description: '',
+      });
+    } catch (error) {
+      console.error('Error saving block:', error);
+      setFeedback({ type: 'error', message: 'Failed to register block.' });
+    }
+  };
 
   // Calculate volume when length, width, or height changes
   React.useEffect(() => {
     if (blockData.length && blockData.width && blockData.height) {
       const volume = (parseFloat(blockData.length) * parseFloat(blockData.width) * parseFloat(blockData.height)).toFixed(3);
-      setBlockData({
-        ...blockData,
+      setBlockData(prevData => ({
+        ...prevData,
         volume: volume
-      });
+      }));
     }
-  }, [blockData.length, blockData.width, blockData.height, blockData]);
+  }, [blockData.length, blockData.width, blockData.height]);
+
+  // Clear feedback after 3 seconds
+  useEffect(() => {
+    if (feedback.message) {
+      const timer = setTimeout(() => {
+        setFeedback({ type: '', message: '' });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedback]);
 
   // Handle photo uploads
   const handleMainPhotoUpload = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.size > 10 * 1024 * 1024) {
-        alert('File size should be less than 10MB');
+        setFeedback({ type: 'error', message: 'File size should be less than 10MB' });
         return;
       }
       setPhotos({
@@ -94,7 +211,7 @@ const RegisterBlock = () => {
       const validFiles = filesArray.filter(file => file.size <= 10 * 1024 * 1024);
       
       if (validFiles.length !== filesArray.length) {
-        alert('Some files were skipped because they exceed 10MB size limit');
+        setFeedback({ type: 'error', message: 'Some files were skipped because they exceed 10MB size limit' });
       }
 
       setPhotos({
@@ -111,14 +228,13 @@ const RegisterBlock = () => {
     });
   };
 
-  
-
   return (
     <div className="register-block-container">
+      <FeedbackMessage type={feedback.type} message={feedback.message} />
+      
       <div className="register-block-header">
         <h1>Register Block</h1>
         <div className="action-buttons">
-          <button className="back-button">To go back</button>
           <button className="save-button" onClick={handleSave}>Save</button>
         </div>
       </div>
@@ -128,25 +244,8 @@ const RegisterBlock = () => {
           <h2>Information</h2>
           
           <div className="form-grid">
-            {/* <div className="form-group">
-              <label htmlFor="registrationDate">Registration Date <span className="required">*</span></label>
-              <div className="date-input-wrapper">
-                <input
-                  type="text"
-                  id="registrationDate"
-                  name="registrationDate"
-                  value={blockData.registrationDate}
-                  onChange={handleInputChange}
-                  required
-                />
-                <button className="calendar-button">
-                  <FaCalendarAlt />
-                </button>
-              </div>
-            </div> */}
-
             <div className="form-group">
-              <label htmlFor="block">Block <span className="required">*</span></label>
+              <label htmlFor="block">Block Name <span className="required">*</span></label>
               <input
                 type="text"
                 id="block"
@@ -157,6 +256,40 @@ const RegisterBlock = () => {
               />
             </div>
 
+            <div className="form-group">
+              <label htmlFor="supplier">Supplier <span className="required">*</span></label>
+              <select
+                id="supplier"
+                name="supplier"
+                value={blockData.supplier}
+                onChange={handleSupplierChange}
+                required
+              >
+                <option value="">(Select Supplier)</option>
+                {suppliers.map(supplier => (
+                  <option key={supplier._id} value={supplier.enterprise}>{supplier.enterprise}</option>
+                ))}
+                <option value="add_new">➕ Add New Supplier</option>
+              </select>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="material">Material <span className="required">*</span></label>
+              <select
+                id="material"
+                name="material"
+                value={blockData.material}
+                onChange={handleMaterialChange}
+                required
+              >
+                <option value="">(Select Material)</option>
+                {materials.map(material => (
+                  <option key={material._id} value={material.name}>{material.name}</option>
+                ))}
+                <option value="add_new">➕ Add New Material</option>
+              </select>
+            </div>
+            
             <div className="form-group">
               <label htmlFor="length">Length (M)</label>
               <input
@@ -202,20 +335,6 @@ const RegisterBlock = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="supplier">Supplier </label>
-              <select
-                id="supplier"
-                name="supplier"
-                value={blockData.supplier}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="">(Select Supplier)</option>
-                {/* Add supplier options here */}
-              </select>
-            </div>
-
-            <div className="form-group">
               <label htmlFor="location">Location</label>
               <input
                 type="text"
@@ -238,7 +357,7 @@ const RegisterBlock = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="purchaseValue">Purchase Value</label>
+              <label htmlFor="purchaseValue">Purchase Cost</label>
               <input
                 type="number"
                 id="purchaseValue"
@@ -249,7 +368,7 @@ const RegisterBlock = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="weight">Weight</label>
+              <label htmlFor="weight">Weight (Ton)</label>
               <input
                 type="number"
                 id="weight"
@@ -260,54 +379,18 @@ const RegisterBlock = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="material">Material <span className="required">*</span></label>
-              <select
-                id="material"
-                name="material"
-                value={blockData.material}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="">(Select Material)</option>
-                {/* Add material options here */}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="code">Code</label>
-              <input
-                type="text"
-                id="code"
-                name="code"
-                value={blockData.code}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="internship">Internship</label>
+              <label htmlFor="internship">Status</label>
               <select
                 id="internship"
                 name="internship"
                 value={blockData.internship}
                 onChange={handleInputChange}
               >
-                <option value="">(Select Internship)</option>
-                {/* Add internship options here */}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="situation">Situation</label>
-              <select
-                id="situation"
-                name="situation"
-                value={blockData.situation}
-                onChange={handleInputChange}
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-                {/* Add other situation options here */}
+                <option value="">(Select Status)</option>
+                <option value="Transfer">Transfer</option>
+                <option value="Gantry">Gantry</option>
+                <option value="Production">Production</option>
+                <option value="Completed">Completed</option>
               </select>
             </div>
           </div>
@@ -368,14 +451,45 @@ const RegisterBlock = () => {
         </section>
       </div>
 
-      {/* Email notification warning */}
-      {/* <div className="email-warning">
-        <p>Your email is not configured correctly!</p> */}
-        <p className="warning-action">Click here to configure</p>
-        <button className="close-warning">×</button>
-      </div>
-    // </div>
+      {/* Material Modal */}
+      {showAddMaterialModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>Add New Material</h3>
+            <input
+              type="text"
+              value={newMaterialName}
+              onChange={(e) => setNewMaterialName(e.target.value)}
+              placeholder="Enter material name"
+            />
+            <div className="modal-actions">
+              <button onClick={handleAddNewMaterial}>Save</button>
+              <button onClick={() => setShowAddMaterialModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Supplier Modal */}
+      {showAddSupplierModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>Add New Supplier</h3>
+            <input
+              type="text"
+              value={newSupplierName}
+              onChange={(e) => setNewSupplierName(e.target.value)}
+              placeholder="Enter supplier name"
+            />
+            <div className="modal-actions">
+              <button onClick={handleAddNewSupplier}>Save</button>
+              <button onClick={() => setShowAddSupplierModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default RegisterBlock
+export default RegisterBlock;

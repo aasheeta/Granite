@@ -323,3 +323,35 @@ select {
     font-size: 16px;
   }
 }
+
+
+/* Add these styles to your existing BlockRegister.css file */
+
+/* Error state for input fields */
+.form-group input.error,
+.form-group select.error {
+  border-color: #c62828;
+  box-shadow: 0 0 0 1px #c62828;
+}
+
+/* Error message styling */
+.error-message {
+  color: #c62828;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Required field asterisk styling */
+.required {
+  color: #c62828;
+  font-weight: bold;
+}
+
+/* Focus state for error fields */
+.form-group input.error:focus,
+.form-group select.error:focus {
+  outline: none;
+  border-color: #c62828;
+  box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.2);
+}
